@@ -1,0 +1,15 @@
+__pycache__/
+*.py[co]
+
+*.blend1
+*.blend2
+
+/build/
+/.eggs/
+/dist/
+/screenshot-*.jpg
+/.idea
+
+/*.core
+/core
+/venv37*
