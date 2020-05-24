@@ -7,8 +7,20 @@ from app.exceptions.SqlException import SqlException
 
 # Get all products
 @app.route('/api/v1/product/all', methods=['GET'])
-def api_all():
+def get_all_products():
     return jsonify(Product.query.all())
+
+
+@app.route('/api/v1/product/gender/<gender>', methods=['GET'])
+def get_products_by_gender(gender):
+    results = Product.query.filter(Product.product_gender == gender).all()
+    return jsonify(results)
+
+
+@app.route('/api/v1/product/category/<category>', methods=['GET'])
+def get_products_by_category(category):
+    results = Product.query.filter(Product.product_categories.any(Category.category_name == category)).all()
+    return jsonify(results)
 
 
 @app.route('/api/v1/product/create', methods=['POST'])
@@ -54,6 +66,7 @@ def handle_db_error(error):
     response = jsonify(error.to_dict())
     response.status_code = error.status_code
     return response
+
 
 db.create_all()
 app.run()

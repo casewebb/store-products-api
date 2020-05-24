@@ -32,6 +32,7 @@ class Product(db.Model):
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     updated_date = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
+
 @dataclass
 class Category(db.Model):
     category_id: int
