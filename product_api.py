@@ -1,9 +1,11 @@
 from flask import jsonify, request
-from app.db_models.models import Product, Category
 from sqlalchemy import exc
+
 from app import app
 from app import db
+from app.db_models.models import Product, Category
 from app.exceptions.SqlException import SqlException
+
 
 # Get all products
 @app.route('/api/v1/product/all')
@@ -56,9 +58,24 @@ def create_product():
 
 @app.route('/api/v1/product/update', methods=['PUT'])
 def update_product():
-    post_product = db.session.query(Product).filter_by(product_id=request.args.get("product_id")).first()
-    category2 = Category(category_name="PostUpdateCategory")
-    post_product.categories.append(category2)
+    # request.args.get("product_id")
+    # data = request.get_json()
+
+    post_product = db.session.query(Product).filter_by(product_id=3).first()
+    post_cat = db.session.query(Category).filter_by(category_id=4).first()
+    post_product.product_title = 'Razer Gaming PC'
+
+    # post_product.product_categories.remove(post_cat) to remove a category
+
+    # for _category in categories:
+    #     existing_cat = db.session.query(Category).filter_by(category_name=_category).first()
+    #     if existing_cat is None:
+    #         category = Category(category_name=_category)
+    #     else:
+    #         category = existing_cat
+    #     post_product.product_categories.append(category)
+    # To add a category
+
     db.session.commit()
 
 

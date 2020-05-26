@@ -23,8 +23,8 @@ class Product(db.Model):
     updated_date: datetime
 
     product_id = db.Column("product_id", db.Integer, primary_key=True)
-    product_title = db.Column(db.String(50), nullable=False)
-    product_description = db.Column(db.String(150), nullable=False)
+    product_title = db.Column(db.String(30), nullable=False)
+    product_description = db.Column(db.String(190), nullable=False)
     product_image_url = db.Column(db.String(1000), nullable=False)
     product_image_alt = db.Column(db.String(100), nullable=False)
     product_link = db.Column(db.String(1000), nullable=False)
