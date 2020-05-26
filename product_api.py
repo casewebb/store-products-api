@@ -6,18 +6,18 @@ from app import db
 from app.exceptions.SqlException import SqlException
 
 # Get all products
-@app.route('/api/v1/product/all', methods=['GET'])
+@app.route('/api/v1/product/all')
 def get_all_products():
     return jsonify(Product.query.all())
 
 
-@app.route('/api/v1/product/gender/<gender>', methods=['GET'])
+@app.route('/api/v1/product/gender/<gender>')
 def get_products_by_gender(gender):
     results = Product.query.filter(Product.product_gender == gender).all()
     return jsonify(results)
 
 
-@app.route('/api/v1/product/category/<category>', methods=['GET'])
+@app.route('/api/v1/product/category/<category>')
 def get_products_by_category(category):
     results = Product.query.filter(Product.product_categories.any(Category.category_name == category)).all()
     return jsonify(results)
@@ -31,6 +31,7 @@ def create_product():
     product = Product(product_title=data["product_title"],
                       product_description=data["product_description"],
                       product_image_url=data["product_image_url"],
+                      product_image_alt=data["product_image_alt"],
                       product_link=data["product_link"],
                       product_price=data["product_price"],
                       product_gender=data['product_gender'])

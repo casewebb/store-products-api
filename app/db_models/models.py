@@ -14,6 +14,7 @@ class Product(db.Model):
     product_title: str
     product_description: str
     product_image_url: str
+    product_image_alt: str
     product_link: str
     product_price: float
     product_gender: int
@@ -25,6 +26,7 @@ class Product(db.Model):
     product_title = db.Column(db.String(50), nullable=False)
     product_description = db.Column(db.String(150), nullable=False)
     product_image_url = db.Column(db.String(1000), nullable=False)
+    product_image_alt = db.Column(db.String(100), nullable=False)
     product_link = db.Column(db.String(1000), nullable=False)
     product_price = db.Column(db.Float, nullable=False)
     product_gender = db.Column(db.Integer, nullable=False)  # Male=0, Female=1, Both=2
