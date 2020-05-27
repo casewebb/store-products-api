@@ -3,8 +3,8 @@ from datetime import datetime
 
 from app import db
 
-
-product_category = db.Table('product_category', db.Column('category_id', db.Integer, db.ForeignKey('category.category_id')),
+product_category = db.Table('product_category',
+                            db.Column('category_id', db.Integer, db.ForeignKey('category.category_id')),
                             db.Column('product_id', db.Integer, db.ForeignKey('product.product_id')))
 
 
@@ -34,6 +34,34 @@ class Product(db.Model):
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     updated_date = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
+    def update(self, updated_product):
+
+        # Setting new Attributes
+        updated_prod_attrs = [a for a in updated_product if not a.startswith('__')]
+        for key in updated_prod_attrs:
+            try:
+                if getattr(self, key) != updated_product[key] \
+                        and key != 'product_id'\
+                        and key != 'product_categories':
+                    setattr(self, key, updated_product[key])
+            except AttributeError:
+                pass
+
+        updated_categories = updated_product['product_categories']
+        # Remove deleted categories
+        for _category in self.product_categories:
+            if _category.category_name not in updated_categories:
+                category_to_remove = db.session.query(Category).filter_by(category_id=_category.category_id).first()
+                self.product_categories.remove(category_to_remove)
+
+        # Add new categories
+        for _category in updated_categories:
+            existing_category = db.session.query(Category).filter_by(category_name=_category).first()
+            if existing_category is None:
+                category = Category(category_name=_category)
+            else:
+                category = existing_category
+            self.product_categories.append(category)
 
 @dataclass
 class Category(db.Model):

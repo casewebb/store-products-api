@@ -58,25 +58,16 @@ def create_product():
 
 @app.route('/api/v1/product/update', methods=['PUT'])
 def update_product():
-    # request.args.get("product_id")
-    # data = request.get_json()
-
-    post_product = db.session.query(Product).filter_by(product_id=3).first()
-    post_cat = db.session.query(Category).filter_by(category_id=4).first()
-    post_product.product_title = 'Razer Gaming PC'
-
-    # post_product.product_categories.remove(post_cat) to remove a category
-
-    # for _category in categories:
-    #     existing_cat = db.session.query(Category).filter_by(category_name=_category).first()
-    #     if existing_cat is None:
-    #         category = Category(category_name=_category)
-    #     else:
-    #         category = existing_cat
-    #     post_product.product_categories.append(category)
-    # To add a category
-
-    db.session.commit()
+    data = request.get_json()
+    post_product = db.session.query(Product).filter_by(product_id=data['product_id']).first()
+    post_product.update(data)
+    try:
+        db.session.commit()
+        db.session.refresh(post_product)
+        return {'product_id': str(post_product.product_id), 'updated_date': str(post_product.updated_date)}
+    except exc.SQLAlchemyError:
+        db.session.rollback()
+        raise SqlException('Internal API Error', 500)
 
 
 @app.errorhandler(SqlException)
