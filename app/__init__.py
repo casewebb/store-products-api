@@ -3,6 +3,7 @@ from flask.json import JSONEncoder
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
+from app.config import Config
 from datetime import date
 
 
@@ -23,9 +24,7 @@ app = flask.Flask(__name__)
 CORS(app)
 app.json_encoder = CustomJSONEncoder
 
-app.config["DEBUG"] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:admin@localhost/affiliate_store'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config.from_object(Config())
 
 db = SQLAlchemy(app)
 from app.db_models.models import Category, Product

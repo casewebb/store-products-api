@@ -61,6 +61,7 @@ class Product(db.Model):
                 category = existing_category
             self.product_categories.append(category)
 
+
 @dataclass
 class Category(db.Model):
     category_id: int
