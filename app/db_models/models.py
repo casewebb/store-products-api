@@ -17,7 +17,6 @@ class Product(db.Model):
     product_image_alt: str
     product_link: str
     product_price: float
-    product_gender: int
     product_categories: str
     created_date: datetime
     updated_date: datetime
@@ -29,7 +28,6 @@ class Product(db.Model):
     product_image_alt = db.Column(db.String(100), nullable=False)
     product_link = db.Column(db.String(1000), nullable=False)
     product_price = db.Column(db.Float, nullable=False)
-    product_gender = db.Column(db.Integer, nullable=False)  # Male=0, Female=1, Both=2
     product_categories = db.relationship("Category", secondary=product_category)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     updated_date = db.Column(db.DateTime, onupdate=datetime.utcnow)

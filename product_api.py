@@ -13,12 +13,6 @@ def get_all_products():
     return jsonify(Product.query.all())
 
 
-@app.route('/api/v1/product/gender/<gender>')
-def get_products_by_gender(gender):
-    results = Product.query.filter(Product.product_gender == gender).all()
-    return jsonify(results)
-
-
 @app.route('/api/v1/product/category/<category>')
 def get_products_by_category(category):
     results = Product.query.filter(Product.product_categories.any(Category.category_name == category)).all()
@@ -35,8 +29,7 @@ def create_product():
                       product_image_url=data["product_image_url"],
                       product_image_alt=data["product_image_alt"],
                       product_link=data["product_link"],
-                      product_price=data["product_price"],
-                      product_gender=data['product_gender'])
+                      product_price=data["product_price"])
 
     for _category in categories:
         existing_cat = db.session.query(Category).filter_by(category_name=_category).first()
@@ -51,6 +44,44 @@ def create_product():
         db.session.commit()
         db.session.refresh(product)
         return str(product.product_id)
+    except exc.SQLAlchemyError:
+        db.session.rollback()
+        raise SqlException('Internal API Error', 500)
+
+
+@app.route('/api/v1/product/bulk/create', methods=['POST'])
+def bulk_create_products():
+    products_created = []
+    data = request.get_json()
+
+    for product in data:
+        categories = product['product_categories']
+        product = Product(product_title=product["product_title"],
+                          product_description=product["product_description"],
+                          product_image_url=product["product_image_url"],
+                          product_image_alt=product["product_image_alt"],
+                          product_link=product["product_link"],
+                          product_price=product["product_price"])
+
+        for _category in categories:
+            existing_cat = db.session.query(Category).filter_by(category_name=_category).first()
+            if existing_cat is None:
+                category = Category(category_name=_category)
+            else:
+                category = existing_cat
+            product.product_categories.append(category)
+
+        db.session.add(product)
+        try:
+            db.session.flush()
+            db.session.refresh(product)
+            products_created.append({'product_id': str(product.product_id), 'product_title': product.product_title})
+        except exc.SQLAlchemyError:
+            db.session.rollback()
+            raise SqlException('Internal API Error', 500)
+    try:
+        db.session.commit()
+        return {'products': products_created}
     except exc.SQLAlchemyError:
         db.session.rollback()
         raise SqlException('Internal API Error', 500)
@@ -77,5 +108,4 @@ def handle_db_error(error):
     return response
 
 
-db.create_all()
 app.run()
