@@ -14,6 +14,13 @@ def get_all_products():
     return jsonify(results)
 
 
+@app.route('/api/v1/product/all/<page>/<limit>')
+def get_paginated_products(page, limit):
+    results = db.session.query(Product).paginate(int(page), int(limit), False)
+    total_products = int(results.total)
+    return {'total_products': total_products, 'products': results.items}
+
+
 @app.route('/api/v1/product/category/<category>')
 def get_products_by_category(category):
     results = Product.query.filter(Product.product_categories.any(Category.category_name == category)).all()
