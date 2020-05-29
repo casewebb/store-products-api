@@ -10,7 +10,8 @@ from app.exceptions.SqlException import SqlException
 # Get all products
 @app.route('/api/v1/product/all')
 def get_all_products():
-    return jsonify(Product.query.all())
+    results = db.session.query(Product).all()
+    return jsonify(results)
 
 
 @app.route('/api/v1/product/category/<category>')
@@ -43,7 +44,7 @@ def create_product():
     try:
         db.session.commit()
         db.session.refresh(product)
-        return str(product.product_id)
+        return {'product_id': str(product.product_id), 'product_title': str(product.product_title)}
     except exc.SQLAlchemyError:
         db.session.rollback()
         raise SqlException('Internal API Error', 500)
@@ -95,7 +96,7 @@ def update_product():
     try:
         db.session.commit()
         db.session.refresh(post_product)
-        return {'product_id': str(post_product.product_id), 'updated_date': str(post_product.updated_date)}
+        return {'product_title': str(post_product.product_title), 'updated_date': str(post_product.updated_date)}
     except exc.SQLAlchemyError:
         db.session.rollback()
         raise SqlException('Internal API Error', 500)
