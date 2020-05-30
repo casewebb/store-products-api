@@ -1,4 +1,5 @@
 from flask import jsonify, request
+from flask_login import login_required, current_user
 from sqlalchemy import exc
 
 from app import app
@@ -14,9 +15,9 @@ def get_all_products():
     return jsonify(results)
 
 
-@app.route('/api/v1/product/all/<page>/<limit>')
-def get_paginated_products(page, limit):
-    results = db.session.query(Product).paginate(int(page), int(limit), False)
+@app.route('/api/v1/product/all/<page>')
+def get_paginated_products(page):
+    results = db.session.query(Product).order_by(Product.created_date.desc()).paginate(int(page), 15, False)
     total_products = int(results.total)
     return {'total_products': total_products, 'products': results.items}
 
@@ -28,6 +29,7 @@ def get_products_by_category(category):
 
 
 @app.route('/api/v1/product/create', methods=['POST'])
+@login_required
 def create_product():
     data = request.get_json()
 
@@ -58,6 +60,7 @@ def create_product():
 
 
 @app.route('/api/v1/product/bulk/create', methods=['POST'])
+@login_required
 def bulk_create_products():
     products_created = []
     data = request.get_json()
@@ -96,6 +99,7 @@ def bulk_create_products():
 
 
 @app.route('/api/v1/product/update', methods=['PUT'])
+@login_required
 def update_product():
     data = request.get_json()
     post_product = db.session.query(Product).filter_by(product_id=data['product_id']).first()
