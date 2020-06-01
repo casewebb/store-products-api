@@ -1,6 +1,7 @@
 from flask import jsonify, request
-from flask_login import login_required, current_user
+from flask_login import login_required
 from sqlalchemy import exc
+from sqlalchemy import or_
 
 from app import app
 from app import db
@@ -9,10 +10,10 @@ from app.exceptions.SqlException import SqlException
 
 
 # Get all products
-@app.route('/api/v1/product/all')
-def get_all_products():
-    results = db.session.query(Product).all()
-    return jsonify(results)
+# @app.route('/api/v1/product/all')
+# def get_all_products():
+#     results = db.session.query(Product).all()
+#     return jsonify(results)
 
 
 @app.route('/api/v1/product/all/<page>')
@@ -24,8 +25,40 @@ def get_paginated_products(page):
 
 @app.route('/api/v1/product/category/<category>')
 def get_products_by_category(category):
-    results = Product.query.filter(Product.product_categories.any(Category.category_name == category)).all()
+    results = Product.query \
+        .filter(Product.product_categories.any(Category.category_name == category)) \
+        .all()
     return jsonify(results)
+
+
+@app.route('/api/v1/product/filter')
+def get_products_by_filter():
+    search_term = request.args.get('searchTerm')
+    price_min = request.args.get('minPrice')
+    price_max = request.args.get('maxPrice')
+    page = request.args.get('page')
+
+    results = Product.query
+    # Search Term
+    if search_term:
+        results = results.filter(or_(Product.product_title.like('%' + search_term + '%'),
+                                     Product.product_description.like('%' + search_term + '%')))
+
+    # Price Range Filter
+    if price_min and float(price_min) > 0:
+        results = results.filter(Product.product_price >= float(price_min))
+    else:
+        price_min = 0
+
+    if price_max and float(price_max) > float(price_min):
+        results = results.filter(Product.product_price <= float(price_max))
+
+    # Sorting and pagination
+    results = results.order_by(Product.created_date.desc())
+    results = results.paginate(int(page), 15, False)
+
+    total_products = int(results.total)
+    return {'total_products': total_products, 'products': results.items}
 
 
 @app.route('/api/v1/product/create', methods=['POST'])
