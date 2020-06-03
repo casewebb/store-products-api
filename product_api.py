@@ -45,12 +45,12 @@ def get_products_by_filter():
                                      Product.product_description.like('%' + search_term + '%')))
 
     # Price Range Filter
-    if price_min and float(price_min) > 0:
+    if price_min and is_float(price_min) and float(price_min) > 0:
         results = results.filter(Product.product_price >= float(price_min))
     else:
         price_min = 0
 
-    if price_max and float(price_max) > float(price_min):
+    if price_max and is_float(price_max) and float(price_max) > float(price_min):
         results = results.filter(Product.product_price <= float(price_max))
 
     # Sorting and pagination
@@ -151,6 +151,14 @@ def handle_db_error(error):
     response = jsonify(error.to_dict())
     response.status_code = error.status_code
     return response
+
+
+def is_float(value):
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False
 
 
 app.run()
