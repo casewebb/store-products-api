@@ -161,4 +161,5 @@ def is_float(value):
         return False
 
 
-app.run()
+if __name__ == '__main__':
+    app.run(host='0.0.0.0')
