@@ -16,11 +16,31 @@ from app.exceptions.SqlException import SqlException
 #     return jsonify(results)
 
 
+# @app.route('/api/v1/product/all/<page>')
+# def get_paginated_products(page):
+#     results = db.session.query(Product).order_by(Product.created_date.desc()).paginate(int(page), 15, False)
+#     total_products = int(results.total)
+#     return {'total_products': total_products, 'products': results.items}
+
+
 @app.route('/api/v1/product/all/<page>')
 def get_paginated_products(page):
-    results = db.session.query(Product).order_by(Product.created_date.desc()).paginate(int(page), 15, False)
-    total_products = int(results.total)
-    return {'total_products': total_products, 'products': results.items}
+    offset = int(page) * 15 - 15
+    results = db.session.execute("SELECT * FROM affiliate_store.product ORDER BY RAND(ROUND(UNIX_TIMESTAMP(), -3)) "
+                                 "LIMIT :offset,15;",
+                                 {'offset': offset})
+
+    total_products = db.session.execute("SELECT COUNT(*) as count FROM affiliate_store.product;").fetchone()['count']
+
+    data = []
+    info = results.keys()
+    for row in results:
+        line = {}
+        for i, col in enumerate(row):
+            line[info[i]] = col
+        data.append(line)
+
+    return {'total_products': total_products, 'products': data}
 
 
 @app.route('/api/v1/product/category/<category>')
